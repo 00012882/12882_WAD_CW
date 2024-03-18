@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -15,6 +17,30 @@ builder.Services.AddDbContext<BlogDbContext>(options => options.UseSqlServer(bui
 
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
+builder.Services.AddScoped<IPostRepository, PostsRepository>();
+
+builder.Services.AddCors(options =>
+
+{
+
+    options.AddPolicy(MyAllowSpecificOrigins,
+
+               policy =>
+
+               {
+
+                   policy.WithOrigins("http://localhost:4200")
+
+                           .AllowAnyHeader()
+
+                           .AllowAnyMethod()
+
+                           .AllowAnyOrigin();
+
+               });
+
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,6 +49,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
